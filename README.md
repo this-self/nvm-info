@@ -67,7 +67,7 @@ export NVM_DIR="$HOME/.nvm"
 ## Install from source
 
 ```bash
-git clone https://github.com/ihorlev/nvm-info.git
+git clone https://github.com/this-self/nvm-info.git
 cd nvm-info
 npm install
 npm run build
