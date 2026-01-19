@@ -1,6 +1,6 @@
 {
   "name": "nvm-info",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "CLI tool to analyze Node.js versions installed via nvm - view disk usage and global packages",
   "type": "module",
   "author": "Ihor Levchenko",
