@@ -84,6 +84,10 @@ npm run build
 npm run format
 ```
 
+## Todo
+
+See [TODO](TODO.md) for upcoming ideas and future work.
+
 ## Contributing
 
 PRs welcome. Keep changes focused and include context in the description.
