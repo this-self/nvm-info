@@ -2,7 +2,7 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 
 import type { NodeVersionInfo, LoadProgress } from "../models.js";
-import { getFolderSizeMB } from "./fs-size.js";
+import { getFolderSizeBytesSafe } from "./fs-size.js";
 
 const NODE_VERSIONS_DIRNAME = "versions/node";
 
@@ -40,12 +40,12 @@ export async function loadNodeVersions(
       completed: [...completed],
     });
 
-    const [sizeMB, globals] = await Promise.all([
-      getFolderSizeMB(versionDir),
+    const [sizeBytes, globals] = await Promise.all([
+      getFolderSizeBytesSafe(versionDir),
       listGlobalPackages(versionDir),
     ]);
 
-    completed.push({ version, sizeMB, globals });
+    completed.push({ version, sizeBytes, globals });
   }
 
   return completed;

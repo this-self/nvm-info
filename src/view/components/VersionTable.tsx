@@ -11,7 +11,7 @@ interface VersionTableProps {
 }
 
 const VERSION_WIDTH = 12;
-const SIZE_WIDTH = 12;
+const SIZE_WIDTH = 10;
 const COLUMN_GAP = 2;
 
 export function VersionTable({ versions }: VersionTableProps) {
@@ -52,7 +52,7 @@ export function VersionTable({ versions }: VersionTableProps) {
           result = compareVersions(a.version, b.version);
           break;
         case "size":
-          result = (a.sizeMB ?? 0) - (b.sizeMB ?? 0);
+          result = (a.sizeBytes ?? 0) - (b.sizeBytes ?? 0);
           break;
         case "packages":
           result = a.globals.length - b.globals.length;
@@ -62,6 +62,18 @@ export function VersionTable({ versions }: VersionTableProps) {
     });
     return sorted;
   }, [versions, sortColumn, sortDirection]);
+
+  const totalBytes = useMemo(() => {
+    let total = 0;
+    let hasValue = false;
+    for (const info of versions) {
+      if (typeof info.sizeBytes === "number") {
+        total += info.sizeBytes;
+        hasValue = true;
+      }
+    }
+    return hasValue ? total : null;
+  }, [versions]);
 
   const terminalWidth = process.stdout.columns ?? 80;
   const packagesWidth = Math.max(
@@ -84,6 +96,7 @@ export function VersionTable({ versions }: VersionTableProps) {
           packagesWidth={packagesWidth}
         />
       ))}
+      <TotalRow totalBytes={totalBytes} packagesWidth={packagesWidth} />
       <Box marginTop={1}>
         <Text dimColor>Press 1/2/3 to sort by column, q to quit</Text>
       </Box>
@@ -101,7 +114,7 @@ function Header({ sortColumn, sortDirection, packagesWidth }: HeaderProps) {
   const arrow = sortDirection === "asc" ? "▲" : "▼";
 
   const versionHeader = `Version${sortColumn === "version" ? ` ${arrow}` : ""}`;
-  const sizeHeader = `${sortColumn === "size" ? `${arrow} ` : ""}Size(MB)`;
+  const sizeHeader = `${sortColumn === "size" ? `${arrow} ` : ""}Size`;
   const packagesHeader = `Packages${sortColumn === "packages" ? ` ${arrow}` : ""}`;
 
   return (
@@ -177,7 +190,7 @@ function VersionRow({ info, packagesWidth }: VersionRowProps) {
           <Box width={COLUMN_GAP} />
           <Box width={SIZE_WIDTH} justifyContent="flex-end">
             {index === 0 ? (
-              <Text>{formatSize(info.sizeMB)}</Text>
+              <Text>{formatSizeBytes(info.sizeBytes)}</Text>
             ) : (
               <Text> </Text>
             )}
@@ -192,8 +205,50 @@ function VersionRow({ info, packagesWidth }: VersionRowProps) {
   );
 }
 
-function formatSize(sizeMB: number | null): string {
-  return sizeMB === null ? "N/A" : String(sizeMB);
+interface TotalRowProps {
+  totalBytes: number | null;
+  packagesWidth: number;
+}
+
+function TotalRow({ totalBytes, packagesWidth }: TotalRowProps) {
+  return (
+    <Box marginTop={1}>
+      <Box width={VERSION_WIDTH}>
+        <Text bold>Total</Text>
+      </Box>
+      <Box width={COLUMN_GAP} />
+      <Box width={SIZE_WIDTH} justifyContent="flex-end">
+        <Text>{formatSizeBytes(totalBytes)}</Text>
+      </Box>
+      <Box width={COLUMN_GAP} />
+      <Box width={packagesWidth}>
+        <Text> </Text>
+      </Box>
+    </Box>
+  );
+}
+
+function formatSizeBytes(sizeBytes: number | null): string {
+  if (sizeBytes === null) {
+    return "N/A";
+  }
+
+  const units = ["B", "KB", "MB", "GB", "TB"];
+  let value = sizeBytes;
+  let unitIndex = 0;
+
+  while (value >= 1024 && unitIndex < units.length - 1) {
+    value /= 1024;
+    unitIndex += 1;
+  }
+
+  const useDecimal = value < 10 && unitIndex > 0;
+  const formatter = new Intl.NumberFormat("en-US", {
+    minimumFractionDigits: useDecimal ? 1 : 0,
+    maximumFractionDigits: useDecimal ? 1 : 0,
+  });
+
+  return `${formatter.format(value)} ${units[unitIndex]}`;
 }
 
 function wrapPackages(packages: string[], width: number): string[] {

@@ -1,6 +1,6 @@
 # nvm-info
 
-A small CLI that shows how much space each nvm-installed Node version takes, plus what global packages live under it. Fast to run, easy to scan.
+A small CLI that shows how much space each nvm-installed Node version takes, plus what global packages live under it.
 
 ## Quick start
 
@@ -17,26 +17,18 @@ npm i -g nvm-info
 nvm-info
 ```
 
-## Interactive table
-
-Example scan progress:
+## Example
 
 ```
-⠹ Processing v20.13.1... (3/7)
-
-[████████░░░░░░░░░░░░]
-```
-
-Once loaded:
-
-```
-Version ▲      Size(MB)  Packages
+Version ▲      Size       Packages
 ------------  ----------  --------------------------------------------------
-v18.12.0             156  corepack, npm
-v20.13.1             194  @openai/codex, corepack, npm
-v22.16.0             260  @electron/asar, autocannon, corepack, npm, pnpm,
-                          typescript
-v24.13.0             555  @openai/codex, corepack, npm, pnpm
+v18.12.0        156 MB     corepack, npm
+v20.13.1        194 MB     @openai/codex, corepack, npm
+v22.16.0        260 MB     @electron/asar, autocannon, corepack, npm, pnpm,
+                           typescript
+v24.13.0        555 MB     @openai/codex, corepack, npm, pnpm
+
+Total           1.1 GB
 
 Press 1/2/3 to sort by column, q to quit
 ```

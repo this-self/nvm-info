@@ -1,6 +1,6 @@
 export interface NodeVersionInfo {
   version: string;
-  sizeMB: number | null;
+  sizeBytes: number | null;
   globals: string[];
 }
 

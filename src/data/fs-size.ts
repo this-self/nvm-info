@@ -15,6 +15,17 @@ export async function getFolderSizeMB(folder: string): Promise<number | null> {
   }
 }
 
+export async function getFolderSizeBytesSafe(
+  folder: string
+): Promise<number | null> {
+  try {
+    const bytes = await getFolderSizeBytes(folder);
+    return Number.isFinite(bytes) ? bytes : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function getFolderSizeBytes(
   folder: string,
   options: { concurrency?: number } = {}
