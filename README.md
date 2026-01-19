@@ -7,7 +7,7 @@ A small CLI that shows how much space each nvm-installed Node version takes, plu
 Run it once:
 
 ```bash
-npx nvm-info -y
+npx nvm-info@latest -y
 ```
 
 Or install globally:
