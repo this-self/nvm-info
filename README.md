@@ -1,58 +1,25 @@
 # nvm-info
 
-A CLI tool to analyze your Node.js versions installed via [nvm](https://github.com/nvm-sh/nvm). Quickly see disk usage and globally installed packages for each Node.js version.
+A small CLI that shows how much space each nvm-installed Node version takes, plus what global packages live under it. Fast to run, easy to scan.
 
-## Features
+## Quick start
 
-- **Disk Usage Analysis** - See how much space each Node.js version consumes
-- **Global Packages Overview** - View globally installed npm packages per version
-- **Interactive Sorting** - Sort by version, size, or package count
-- **Progressive Loading** - Real-time progress indicator while scanning
-- **Cross-Platform** - Works on macOS and Linux
-
-## Prerequisites
-
-- [Node.js](https://nodejs.org/) v18.0.0 or higher
-- [nvm](https://github.com/nvm-sh/nvm) installed and configured
-
-## Quick Start
-
-**Run directly (no installation):**
+Run it once:
 
 ```bash
 npx nvm-info -y
 ```
 
-**Or install globally:**
+Or install globally:
 
 ```bash
 npm i -g nvm-info
 nvm-info
 ```
 
-## Installation
+## Interactive table
 
-### From Source
-
-```bash
-git clone https://github.com/ihorlev/nvm-info.git
-cd nvm-info
-npm install
-npm run build
-npm link
-```
-
-## Usage
-
-```bash
-# Run without installing
-npx nvm-info -y
-
-# Or if installed globally
-nvm-info
-```
-
-### Example Output
+Example scan progress:
 
 ```
 ⠹ Processing v20.13.1... (3/7)
@@ -60,7 +27,7 @@ nvm-info
 [████████░░░░░░░░░░░░]
 ```
 
-Once loaded, you'll see an interactive table:
+Once loaded:
 
 ```
 Version ▲      Size(MB)  Packages
@@ -74,62 +41,62 @@ v24.13.0             555  @openai/codex, corepack, npm, pnpm
 Press 1/2/3 to sort by column, q to quit
 ```
 
-### Keyboard Controls
+Keyboard:
 
 | Key | Action |
 |-----|--------|
-| `1` | Sort by Version |
-| `2` | Sort by Size |
-| `3` | Sort by Package Count |
+| `1` | Sort by version |
+| `2` | Sort by size |
+| `3` | Sort by package count |
 | `q` | Quit |
 
-Pressing the same sort key twice toggles between ascending and descending order.
+Press the same key again to reverse sort order.
 
-## How It Works
+## How it works
 
-nvm-info scans your `$NVM_DIR/versions/node` directory and for each installed Node.js version:
+`nvm-info` scans your `$NVM_DIR/versions/node` directory. For each installed Node.js version it:
 
-1. Calculates the total disk space used
-2. Lists globally installed npm packages (from `lib/node_modules`)
-3. Displays results in an interactive, sortable table
+1. Calculates total disk usage
+2. Reads global packages from `lib/node_modules`
+3. Renders a sortable table in the terminal
 
 ## Requirements
 
-The `NVM_DIR` environment variable must be set. This is typically configured automatically when you install nvm and add it to your shell configuration:
+- Node.js `>= 18`
+- `nvm` installed and configured
+- `NVM_DIR` available in your shell
+
+Typical `NVM_DIR` setup:
 
 ```bash
-# In your .bashrc, .zshrc, or equivalent
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+```
+
+## Install from source
+
+```bash
+git clone https://github.com/ihorlev/nvm-info.git
+cd nvm-info
+npm install
+npm run build
+npm link
 ```
 
 ## Development
 
 ```bash
-# Install dependencies
 npm install
-
-# Run in development mode
 npm run dev
-
-# Run in watch mode
 npm run dev:watch
-
-# Build for production
 npm run build
-
-# Format code
 npm run format
 ```
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+PRs welcome. Keep changes focused and include context in the description.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Related Projects
-
-- [nvm](https://github.com/nvm-sh/nvm) - Node Version Manager
+MIT — see `LICENSE`.
