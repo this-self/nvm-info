@@ -3,3 +3,10 @@ export interface NodeVersionInfo {
   sizeMB: number | null;
   globals: string[];
 }
+
+export interface LoadProgress {
+  current: number;
+  total: number;
+  version: string;
+  completed: NodeVersionInfo[];
+}
