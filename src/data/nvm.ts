@@ -70,11 +70,26 @@ async function listVersionNames(versionsDir: string): Promise<string[]> {
     .map((entry) => entry.name);
 }
 
+async function readPackageVersion(packageDir: string): Promise<string | null> {
+  try {
+    const packageJsonPath = path.join(packageDir, "package.json");
+    const content = await fs.readFile(packageJsonPath, "utf-8");
+    const packageJson = JSON.parse(content) as { version?: string };
+    return typeof packageJson.version === "string" ? packageJson.version : null;
+  } catch {
+    return null;
+  }
+}
+
+function formatPackageWithVersion(name: string, version: string | null): string {
+  return version ? `${name}@${version}` : name;
+}
+
 async function listGlobalPackages(versionDir: string): Promise<string[]> {
   const nodeModulesDir = path.join(versionDir, "lib", "node_modules");
   try {
     const entries = await fs.readdir(nodeModulesDir, { withFileTypes: true });
-    const packages: string[] = [];
+    const packagePromises: Promise<string[]>[] = [];
 
     for (const entry of entries) {
       if (!(entry.isDirectory() || entry.isSymbolicLink())) {
@@ -85,32 +100,54 @@ async function listGlobalPackages(versionDir: string): Promise<string[]> {
       }
 
       if (entry.name.startsWith("@")) {
-        const scopedPackages = await listScopedPackages(
-          path.join(nodeModulesDir, entry.name),
-          entry.name
+        packagePromises.push(
+          listScopedPackages(nodeModulesDir, entry.name)
         );
-        packages.push(...scopedPackages);
         continue;
       }
 
-      packages.push(entry.name);
+      const packageDir = path.join(nodeModulesDir, entry.name);
+      const name = entry.name;
+      packagePromises.push(
+        readPackageVersion(packageDir).then((version) => [
+          formatPackageWithVersion(name, version),
+        ])
+      );
     }
 
-    return packages.sort((a, b) => a.localeCompare(b));
+    const results = await Promise.all(packagePromises);
+    const packages = results.flat();
+
+    // Sort by package name only, ignoring version suffix
+    return packages.sort((a, b) => {
+      const nameA = a.split("@").slice(0, a.startsWith("@") ? 2 : 1).join("@");
+      const nameB = b.split("@").slice(0, b.startsWith("@") ? 2 : 1).join("@");
+      return nameA.localeCompare(nameB);
+    });
   } catch {
     return [];
   }
 }
 
 async function listScopedPackages(
-  scopeDir: string,
+  nodeModulesDir: string,
   scopeName: string
 ): Promise<string[]> {
   try {
+    const scopeDir = path.join(nodeModulesDir, scopeName);
     const entries = await fs.readdir(scopeDir, { withFileTypes: true });
-    return entries
-      .filter((entry) => entry.isDirectory() || entry.isSymbolicLink())
-      .map((entry) => `${scopeName}/${entry.name}`);
+    const validEntries = entries.filter(
+      (entry) => entry.isDirectory() || entry.isSymbolicLink()
+    );
+
+    const versionPromises = validEntries.map(async (entry) => {
+      const packageDir = path.join(scopeDir, entry.name);
+      const fullName = `${scopeName}/${entry.name}`;
+      const version = await readPackageVersion(packageDir);
+      return formatPackageWithVersion(fullName, version);
+    });
+
+    return Promise.all(versionPromises);
   } catch {
     return [];
   }
