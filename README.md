@@ -15,30 +15,27 @@ A CLI tool to analyze your Node.js versions installed via [nvm](https://github.c
 - [Node.js](https://nodejs.org/) v18.0.0 or higher
 - [nvm](https://github.com/nvm-sh/nvm) installed and configured
 
-## Installation
+## Quick Start
 
-### Using npx (no installation required)
+**Run directly (no installation):**
 
 ```bash
-npx nvm-info
+npx nvm-info -y
 ```
 
-### Global Installation
+**Or install globally:**
 
 ```bash
-npm install -g nvm-info
-```
-
-Then run:
-
-```bash
+npm i -g nvm-info
 nvm-info
 ```
+
+## Installation
 
 ### From Source
 
 ```bash
-git clone https://github.com/yourusername/nvm-info.git
+git clone https://github.com/ihorlev/nvm-info.git
 cd nvm-info
 npm install
 npm run build
@@ -47,9 +44,11 @@ npm link
 
 ## Usage
 
-Simply run the command in your terminal:
-
 ```bash
+# Run without installing
+npx nvm-info -y
+
+# Or if installed globally
 nvm-info
 ```
 
