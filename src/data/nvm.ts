@@ -1,7 +1,7 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 
-import type { NodeVersionInfo } from "../models.js";
+import type { NodeVersionInfo, LoadProgress } from "../models.js";
 import { getFolderSizeMB } from "./fs-size.js";
 
 const NODE_VERSIONS_DIRNAME = "versions/node";
@@ -21,21 +21,34 @@ export function getNodeVersionsDir(nvmDir: string): string {
 }
 
 export async function loadNodeVersions(
-  versionsDir: string
+  versionsDir: string,
+  onProgress?: (progress: LoadProgress) => void
 ): Promise<NodeVersionInfo[]> {
   await ensureDirectoryExists(versionsDir);
   const versionNames = await listVersionNames(versionsDir);
   const sorted = versionNames.sort(compareVersionNames);
-  return Promise.all(
-    sorted.map(async (version) => {
-      const versionDir = path.join(versionsDir, version);
-      const [sizeMB, globals] = await Promise.all([
-        getFolderSizeMB(versionDir),
-        listGlobalPackages(versionDir),
-      ]);
-      return { version, sizeMB, globals };
-    })
-  );
+  const completed: NodeVersionInfo[] = [];
+
+  for (let i = 0; i < sorted.length; i++) {
+    const version = sorted[i]!;
+    const versionDir = path.join(versionsDir, version);
+
+    onProgress?.({
+      current: i + 1,
+      total: sorted.length,
+      version,
+      completed: [...completed],
+    });
+
+    const [sizeMB, globals] = await Promise.all([
+      getFolderSizeMB(versionDir),
+      listGlobalPackages(versionDir),
+    ]);
+
+    completed.push({ version, sizeMB, globals });
+  }
+
+  return completed;
 }
 
 async function ensureDirectoryExists(dir: string): Promise<void> {
