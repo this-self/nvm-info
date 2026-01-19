@@ -2,8 +2,8 @@
   "name": "nvm-info",
   "version": "0.1.0",
   "description": "CLI tool to analyze Node.js versions installed via nvm - view disk usage and global packages",
-  "private": true,
   "type": "module",
+  "author": "Ihor Levchenko",
   "license": "MIT",
   "keywords": [
     "nvm",
