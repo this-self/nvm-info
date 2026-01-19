@@ -22,11 +22,10 @@ nvm-info
 ```
 Version ▲      Size       Packages
 ------------  ----------  --------------------------------------------------
-v18.12.0        156 MB     corepack, npm
-v20.13.1        194 MB     @openai/codex, corepack, npm
-v22.16.0        260 MB     @electron/asar, autocannon, corepack, npm, pnpm,
-                           typescript
-v24.13.0        555 MB     @openai/codex, corepack, npm, pnpm
+v18.12.0        156 MB     corepack@0.17.0, npm@8.19.2
+v20.13.1        194 MB     @openai/codex@0.1.0, corepack@0.28.0, npm@10.5.2
+v22.16.0        260 MB     @electron/asar@4.0.0, autocannon@8.0.0, corepack@0.32.0, npm@10.9.2, pnpm@10.23.0, typescript@5.9.3
+v24.13.0        555 MB     @openai/codex@0.87.0, corepack@0.34.5, npm@11.6.2, pnpm@10.28.0
 
 Total           1.1 GB
 
