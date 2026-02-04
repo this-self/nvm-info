@@ -106,7 +106,10 @@ export function normalizeVersionString(version: string | null): string | null {
   return parseVersion(cleaned) ? cleaned : null;
 }
 
-function parsePackageLabel(label: string): { name: string; version: string | null } {
+function parsePackageLabel(label: string): {
+  name: string;
+  version: string | null;
+} {
   const atIndex = label.lastIndexOf("@");
   if (atIndex <= 0) {
     return { name: label, version: null };
