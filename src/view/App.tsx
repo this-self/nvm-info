@@ -10,7 +10,7 @@ import {
 } from "../data/nvm.js";
 import { ErrorMessage } from "./components/ErrorMessage.js";
 import { LoadingProgress } from "./components/LoadingProgress.js";
-import { VersionTable } from "./components/VersionTable.js";
+import { VersionTable } from "./components/version-table/VersionTable.js";
 
 type AppState =
   | { status: "loading"; progress: LoadProgress | null }
