@@ -1,6 +1,6 @@
 # nvm-info
 
-A small CLI that shows how much space each nvm-installed Node version takes, plus what global packages live under it.
+A small CLI that shows how much space each nvm-installed Node version takes, plus what global packages live under it. The currently active Node version is highlighted with a marker and cyan text in the table output.
 
 ## Quick start
 
@@ -20,12 +20,14 @@ nvm-info
 ## Example
 
 ```
-Version ▲      Size       Packages
-------------  ----------  --------------------------------------------------
-v18.12.0        156 MB     corepack@0.17.0, npm@8.19.2
-v20.13.1        194 MB     @openai/codex@0.1.0, corepack@0.28.0, npm@10.5.2
-v22.16.0        260 MB     @electron/asar@4.0.0, autocannon@8.0.0, corepack@0.32.0, npm@10.9.2, pnpm@10.23.0, typescript@5.9.3
-v24.13.0        555 MB     @openai/codex@0.87.0, corepack@0.34.5, npm@11.6.2, pnpm@10.28.0
+  Version ▲     Size       Packages
+--  ------------  ----------  --------------------------------------------------
+   v18.12.0       156 MB     corepack@0.17.0, npm@8.19.2
+   v20.13.1       194 MB     @openai/codex@0.1.0, corepack@0.28.0, npm@10.5.2
+▶  v22.16.0       260 MB     @electron/asar@4.0.0, autocannon@8.0.0, corepack@0.32.0,
+                            npm@10.9.2, pnpm@10.23.0, typescript@5.9.3
+   v24.13.0       555 MB     @openai/codex@0.87.0, corepack@0.34.5, npm@11.6.2,
+                            pnpm@10.28.0
 
 Total           1.1 GB
 
@@ -34,12 +36,12 @@ Press 1/2/3 to sort by column, q to quit
 
 Keyboard:
 
-| Key | Action |
-|-----|--------|
-| `1` | Sort by version |
-| `2` | Sort by size |
+| Key | Action                |
+| --- | --------------------- |
+| `1` | Sort by version       |
+| `2` | Sort by size          |
 | `3` | Sort by package count |
-| `q` | Quit |
+| `q` | Quit                  |
 
 Press the same key again to reverse sort order.
 
