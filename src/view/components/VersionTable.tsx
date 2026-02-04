@@ -1,4 +1,4 @@
-import { Box, Text, useInput, useApp } from "ink";
+import { Box, Text, useInput, useApp, type TextProps } from "ink";
 import { useState, useMemo } from "react";
 
 import type { NodeVersionInfo } from "../../models.js";
@@ -15,6 +15,9 @@ const VERSION_WIDTH = 12;
 const SIZE_WIDTH = 10;
 const MARKER_WIDTH = 2;
 const COLUMN_GAP = 2;
+const PACKAGE_NAME_COLOR: TextProps["color"] = "yellow";
+const PACKAGE_VERSION_COLOR: TextProps["color"] = "cyan";
+const PACKAGE_PUNCT_DIM = true;
 
 export function VersionTable({ versions, activeVersion }: VersionTableProps) {
   const { exit } = useApp();
@@ -228,7 +231,17 @@ function VersionRow({ info, packagesWidth, isActive }: VersionRowProps) {
           </Box>
           <Box width={COLUMN_GAP} />
           <Box width={packagesWidth}>
-            <Text>{line}</Text>
+            <Text>
+              {line.map((segment, segmentIndex) => (
+                <Text
+                  key={`${segment.text}-${segmentIndex}`}
+                  color={segment.color}
+                  dimColor={segment.dimColor}
+                >
+                  {segment.text}
+                </Text>
+              ))}
+            </Text>
           </Box>
         </Box>
       ))}
@@ -286,26 +299,61 @@ function formatSizeBytes(sizeBytes: number | null): string {
   return `${formatter.format(value)} ${units[unitIndex]}`;
 }
 
-function wrapPackages(packages: string[], width: number): string[] {
+type PackageSegment = {
+  text: string;
+  color?: TextProps["color"];
+  dimColor?: boolean;
+};
+type PackageLine = PackageSegment[];
+
+function parsePackageLabel(label: string): { name: string; version: string | null } {
+  const atIndex = label.lastIndexOf("@");
+  if (atIndex <= 0) {
+    return { name: label, version: null };
+  }
+  const name = label.slice(0, atIndex);
+  const version = label.slice(atIndex + 1);
+  return { name, version: version || null };
+}
+
+function wrapPackages(packages: string[], width: number): PackageLine[] {
   if (packages.length === 0) {
-    return ["-"];
+    return [[{ text: "-", dimColor: true }]];
   }
 
-  const lines: string[] = [];
-  let current = "";
+  const lines: PackageLine[] = [];
+  let currentLine: PackageLine = [];
+  let currentLength = 0;
 
   for (const pkg of packages) {
-    const next = current ? `${current}, ${pkg}` : pkg;
-    if (next.length <= width || current.length === 0) {
-      current = next;
-    } else {
-      lines.push(current);
-      current = pkg;
+    const { name, version } = parsePackageLabel(pkg);
+    const baseLength = name.length + (version ? 1 + version.length : 0);
+    const separatorLength = currentLength > 0 ? 2 : 0;
+
+    if (
+      currentLength > 0 &&
+      currentLength + separatorLength + baseLength > width
+    ) {
+      lines.push(currentLine);
+      currentLine = [];
+      currentLength = 0;
     }
+
+    if (currentLength > 0) {
+      currentLine.push({ text: ", ", dimColor: PACKAGE_PUNCT_DIM });
+      currentLength += separatorLength;
+    }
+
+    currentLine.push({ text: name, color: PACKAGE_NAME_COLOR });
+    if (version) {
+      currentLine.push({ text: "@", dimColor: PACKAGE_PUNCT_DIM });
+      currentLine.push({ text: version, color: PACKAGE_VERSION_COLOR });
+    }
+    currentLength += baseLength;
   }
 
-  if (current) {
-    lines.push(current);
+  if (currentLine.length > 0) {
+    lines.push(currentLine);
   }
 
   return lines;
