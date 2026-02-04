@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import type { NodeVersionInfo, LoadProgress } from "../models.js";
 import {
   getNvmDir,
+  getActiveNodeVersion,
   getNodeVersionsDir,
   loadNodeVersions,
 } from "../data/nvm.js";
@@ -22,6 +23,7 @@ export function App() {
     status: "loading",
     progress: null,
   });
+  const activeVersion = getActiveNodeVersion();
 
   useEffect(() => {
     let cancelled = false;
@@ -71,6 +73,8 @@ export function App() {
         </Box>
       );
     case "success":
-      return <VersionTable versions={state.versions} />;
+      return (
+        <VersionTable versions={state.versions} activeVersion={activeVersion} />
+      );
   }
 }

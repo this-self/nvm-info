@@ -8,16 +8,22 @@ type SortDirection = "asc" | "desc";
 
 interface VersionTableProps {
   versions: NodeVersionInfo[];
+  activeVersion?: string | null;
 }
 
 const VERSION_WIDTH = 12;
 const SIZE_WIDTH = 10;
+const MARKER_WIDTH = 2;
 const COLUMN_GAP = 2;
 
-export function VersionTable({ versions }: VersionTableProps) {
+export function VersionTable({ versions, activeVersion }: VersionTableProps) {
   const { exit } = useApp();
   const [sortColumn, setSortColumn] = useState<SortColumn>("version");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+  const normalizedActiveVersion = useMemo(
+    () => normalizeVersionString(activeVersion ?? null),
+    [activeVersion]
+  );
 
   useInput((input, key) => {
     if (input === "q" || (key.ctrl && input === "c")) {
@@ -78,7 +84,11 @@ export function VersionTable({ versions }: VersionTableProps) {
   const terminalWidth = process.stdout.columns ?? 80;
   const packagesWidth = Math.max(
     20,
-    terminalWidth - VERSION_WIDTH - SIZE_WIDTH - COLUMN_GAP * 2
+    terminalWidth -
+      MARKER_WIDTH -
+      VERSION_WIDTH -
+      SIZE_WIDTH -
+      COLUMN_GAP * 3
   );
 
   return (
@@ -94,6 +104,10 @@ export function VersionTable({ versions }: VersionTableProps) {
           key={info.version}
           info={info}
           packagesWidth={packagesWidth}
+          isActive={
+            normalizedActiveVersion !== null &&
+            normalizeVersionString(info.version) === normalizedActiveVersion
+          }
         />
       ))}
       <TotalRow totalBytes={totalBytes} packagesWidth={packagesWidth} />
@@ -119,6 +133,10 @@ function Header({ sortColumn, sortDirection, packagesWidth }: HeaderProps) {
 
   return (
     <Box>
+      <Box width={MARKER_WIDTH}>
+        <Text> </Text>
+      </Box>
+      <Box width={COLUMN_GAP} />
       <Box width={VERSION_WIDTH}>
         {sortColumn === "version" ? (
           <Text bold underline color="cyan">
@@ -159,6 +177,8 @@ interface DividerProps {
 function Divider({ packagesWidth }: DividerProps) {
   return (
     <Box>
+      <Text>{"-".repeat(MARKER_WIDTH)}</Text>
+      <Box width={COLUMN_GAP} />
       <Text>{"-".repeat(VERSION_WIDTH)}</Text>
       <Box width={COLUMN_GAP} />
       <Text>{"-".repeat(SIZE_WIDTH)}</Text>
@@ -171,18 +191,29 @@ function Divider({ packagesWidth }: DividerProps) {
 interface VersionRowProps {
   info: NodeVersionInfo;
   packagesWidth: number;
+  isActive: boolean;
 }
 
-function VersionRow({ info, packagesWidth }: VersionRowProps) {
+function VersionRow({ info, packagesWidth, isActive }: VersionRowProps) {
   const wrappedPackages = wrapPackages(info.globals, packagesWidth);
 
   return (
     <>
       {wrappedPackages.map((line, index) => (
         <Box key={`${info.version}-${index}`}>
+          <Box width={MARKER_WIDTH}>
+            {index === 0 && isActive ? (
+              <Text color="cyan">▶</Text>
+            ) : (
+              <Text> </Text>
+            )}
+          </Box>
+          <Box width={COLUMN_GAP} />
           <Box width={VERSION_WIDTH}>
             {index === 0 ? (
-              <Text color="green">{info.version}</Text>
+              <Text color={isActive ? "cyan" : "green"} bold={isActive}>
+                {info.version}
+              </Text>
             ) : (
               <Text> </Text>
             )}
@@ -213,6 +244,10 @@ interface TotalRowProps {
 function TotalRow({ totalBytes, packagesWidth }: TotalRowProps) {
   return (
     <Box marginTop={1}>
+      <Box width={MARKER_WIDTH}>
+        <Text> </Text>
+      </Box>
+      <Box width={COLUMN_GAP} />
       <Box width={VERSION_WIDTH}>
         <Text bold>Total</Text>
       </Box>
@@ -312,4 +347,12 @@ function parseVersion(version: string): number[] | null {
   }
 
   return numbers;
+}
+
+function normalizeVersionString(version: string | null): string | null {
+  if (!version) {
+    return null;
+  }
+  const cleaned = version.startsWith("v") ? version : `v${version}`;
+  return parseVersion(cleaned) ? cleaned : null;
 }

@@ -16,6 +16,18 @@ export function getNvmDir(): string {
   return nvmDir;
 }
 
+export function getActiveNodeVersion(): string | null {
+  const nvmBin = process.env.NVM_BIN;
+  const nvmVersion = nvmBin
+    ? normalizeVersion(path.basename(path.dirname(nvmBin)))
+    : null;
+  if (nvmVersion) {
+    return nvmVersion;
+  }
+
+  return normalizeVersion(process.version);
+}
+
 export function getNodeVersionsDir(nvmDir: string): string {
   return path.join(nvmDir, NODE_VERSIONS_DIRNAME);
 }
@@ -189,4 +201,12 @@ function parseVersion(version: string): number[] | null {
   }
 
   return numbers;
+}
+
+function normalizeVersion(version: string | null | undefined): string | null {
+  if (!version) {
+    return null;
+  }
+  const cleaned = version.startsWith("v") ? version : `v${version}`;
+  return parseVersion(cleaned) ? cleaned : null;
 }
